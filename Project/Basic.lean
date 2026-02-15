@@ -1,2 +1,1 @@
-import Mathlib.Tactic
-def hello := "world"
+def sync_test := "το Lean συγχρονίστηκε επιτυχώς"
