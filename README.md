@@ -1,13 +1,26 @@
-# MyProject
+# Lean 4 Study Project
 
-## GitHub configuration
+Αυτό το αποθετήριο περιέχει τις σημειώσεις, τις ασκήσεις και τους κώδικες από τη μελέτη μου στο βιβλίο **"Theorem Proving in Lean 4" (TPIL4)**.
 
-To set up your new GitHub repository, follow these steps:
+## Δομή Project
 
-* Under your repository name, click **Settings**.
-* In the **Actions** section of the sidebar, click "General".
-* Check the box **Allow GitHub Actions to create and approve pull requests**.
-* Click the **Pages** section of the settings sidebar.
-* In the **Source** dropdown menu, select "GitHub Actions".
+- `Project/`: Ο κύριος φάκελος με τον κώδικα Lean.
+- `lakefile.toml`: Ρυθμίσεις του project και Dependencies
 
-After following the steps above, you can remove this section from the README file.
+## Οργάνωση Αρχείων
+
+Κάθε κεφάλαιο του βιβλίου αντιστοιχεί σε ένα ξεχωριστό αρχείο στον φάκελο `Project/`:
+- `Project/Chapter2.lean`: Dependent Type Theory
+- `Project/Chapter3.lean`: Propositions and Proofs
+
+## Τεχνικό Setup
+
+- **Lean Version:** v4.27.0
+- **Βιβλιοθήκες:** Χρήση της `Mathlib` για μαθηματικά θεωρήματα και τακτικές (tactics).
+- **Συγχρονισμός:** Το project είναι ρυθμισμένο για αυτόματο συγχρονισμό μέσω Git/GitHub.
+
+## Πρόοδος
+
+- [x] Setup περιβάλλοντος και Git.
+- [ ] Chapter 2: Dependent Type Theory (Σε εξέλιξη).
+- [ ] Chapter 3: Propositions and Proofs.
