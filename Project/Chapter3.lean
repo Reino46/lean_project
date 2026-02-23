@@ -82,7 +82,136 @@ end Kef31
 
 set_option linter.unusedVariables false
 
+namespace Kef32
+
 variable {p : Prop}
 variable {q : Prop}
 
 theorem t1 : p → q → p := fun hp : p => fun hq : q => hp
+
+-- το #print δινει την αποδειξη ενος θεωρηματος
+#print t1
+
+/-
+  fun hp : p => ... (λ-αφαιρεση)
+  σημαινει εστω μια συναρτηση που δεχεται εισοδο τυπου p
+  ή σε γλωσσα λογικης:
+  Εστω οτι η προταση p ισχυει (δηλ. εχω μια αποδειξη hp για αυτην)
+-/
+
+theorem t1' : p → q → p :=
+  fun hp : p =>
+  fun hq : q =>
+  show p from hp
+
+/-
+  Η εντολή `show` δεν αλλάζει τον κώδικα, αλλά λειτουργεί ως "ετικέτα" που δηλώνει
+  ρητά ποια πρόταση αποδεικνύουμε σε κάθε βήμα για λόγους σαφήνειας.
+-/
+
+-- ή αλλιως:
+theorem t1'' (hp : p) (hq : q) : p := hp
+
+-- μπορω να χρησιμοποιησω το t1 σαν function application
+axiom hp : p
+
+theorem t2 : q → p := t1 hp
+
+/-
+  το 'axiom' δηλωνει την υπαρξη στοιχειου με δοσμενο τυπο
+  και μπορει να χαλασει τη λογικη συνεπεια
+  π.χ. μπορω να δηλωσω οτι ο κενος τυπος False εχει ενα στοιχειο:
+-/
+axiom unsound : False
+--everything follows from false
+theorem ex : 1 = 0 :=
+  False.elim unsound
+
+#print t1''
+-- δηλ. για καθε ζευγος προτασεων p, q εχουμε οτι p → q → p
+
+variable {p q : Prop}
+theorem t1''' : p → q → p := fun (hp : p) (hq : q) => hp
+-- 1. αν δηλωσω τις p, q σαν variables το Lean τις γενικευει για μας
+-- 2. αν γενικευσω το t1 ετσι, μπορω να το εφαρμοσω για διαφορετικα ζευγη προτασεων
+-- ωστε να παρω διαφορετικες περιπτωσεις του γενικου θεωρηματος:
+
+end Kef32
+
+namespace Kef32'
+
+theorem t1 (p q : Prop) (hp : p) (hq : q) :p := hp
+
+variable (p q r s : Prop)
+#check t1 p q
+#check t1 r s
+#check t1 (r → s) (s → r)
+
+variable (h : r → s)
+#check t1 (r → s) (s → r) h
+-- η μτβ. h με τυπο r → s, ειναι η υποθεση οτι η r → s ισχυει
+
+
+-- Θα δω το παραδειγμα της συνθεσης συναρτησεων:
+variable (p q r s : Prop)
+theorem t2 (h1 : q → r) (h2 : p → q) : p → r :=
+  fun h3 : p =>
+  show r from h1 (h2 h3)
+/-
+  σαν θεωρημα της Προτασιακης Λογικης ειναι ο ΥΠΟΘΕΤΙΚΟΣ ΣΥΛΛΟΓΙΣΜΟΣ (ΜΕΤΑΒΑΤΙΚΟΤΗΤΑ)
+  δηλ. αν εχω : p → q (h₂)
+            και q → r (h₁)
+      τοτε εχω p → r
+  ΔΟΜΙΚΑ ειναι η συνθεση συναρτησεων εφαρμοσμενη σε ΑΠΟΔΕΙΞΕΙΣ.
+-/
+
+
+-- μπορω να γραψω \0, \1, ... για δεικτες: h₁ h₂ ...
+
+end Kef32'
+
+
+---------------------- 3.3. PROPOSITIONAL LOGIC --------------------------
+
+
+namespace Kef33
+
+/-
+  Εχουμε:
+  Not : ¬ (\not)
+  And : ∧ (\and)
+  Or : ∨ (\or)
+  To : → (\r ή \to)
+  Iff : ↔ (\iff)
+  ΟΛΑ ΠΑΙΡΝΟΥΝ ΤΙΜΕΣ ΣΤΟ Prop
+-/
+
+variable (p q : Prop)
+#check p → q → p ∧ q
+#check ¬p → p ↔ False
+#check p ∨ q → q ∨ p
+
+/-
+  ORDER: ¬ > ∧ > ∨ > → > ↔
+  πχ. a ∧ b → c ∨ d ∧ e
+  σημαινει (a ∧ b) → (c ∨ (d ∧ e))
+-/
+
+/-
+  Επισης, p → q → r
+  σημαινει "αν π, μετα αν q, τοτε r"
+-/
+
+
+/-
+  INTRODUCTION RULES vs ELIMINATION RULES:
+  (πως φτιαχνω αποδειξη) vs (πως χρησιμοποιω αποδειξη)
+-/
+
+end Kef33
+
+
+------------------------ 3.1.1. CONJUCTION -----------------------------
+
+
+namespace Kef331
