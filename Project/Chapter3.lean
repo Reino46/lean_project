@@ -436,3 +436,258 @@ example (h : p ∧ q) : q ∧ p :=
   have hp : p := h.left
   have hq : q := h.right
   show q ∧ p from And.intro hq hp
+
+  /-
+    ΑΡΚΕΙ ΝΑ ΔΕΙΞΩ ΟΤΙ (ΑΝΤΙΣΤΡΟΦΑ) :
+  -/
+
+variable (p q : Prop)
+example (h : p ∧ q) : q ∧ p :=
+  have hp : p := h.left
+  suffices hq : q from And.intro hq hp
+  show q from And.right h
+
+end Kef34
+
+
+------------------------- 3.5. CLASSICAL LOGIC --------------------------
+
+
+namespace Kef35
+
+/-
+  Προσθετουμε law of excluded middle, p ∨ ¬p
+-/
+
+open Classical -- πρεπει να μπω εδω
+variable (p : Prop)
+#check em p
+
+-- οδηγει στην απαλοιφη διπλης αρνησης:
+theorem dne {p : Prop} (h : ¬¬p) : p :=
+  Or.elim (em p)
+    (fun hp : p => hp) -- περ. 1
+    (fun hnp : ¬p => absurd hnp h) -- περ. 2
+
+/-
+  h : ¬¬p εσωτερικα σημαινει ¬p → False
+-/
+
+/-
+  δοκιμαζω να δειξω το αντιστροφο δηλ.
+  αν dne ισχυει τοτε p ∨ ¬p
+-/
+
+-- οριζω το θεωρημα μου. παιρνω σαν δεδομενο το εργαλειο dne και θελω να δειξω το p ∨ ¬p
+theorem em_from_dne (dne : ∀ {q : Prop}, ¬¬q → q) (p : Prop) : p ∨ ¬p :=
+  -- κανοντας χρηση του dne, ο νεος μου στοχος ειναι να αποδειξω τη διπλη αρνηση: ¬¬(p ∨ ¬p)
+  dne (
+    -- η διπλη αρνηση ειναι συνεπαγωγη προς το false. υποθετω το αριστερο μερος και το λεω h_not
+    fun h_not : ¬(p ∨ ¬p) =>
+      -- πλεον ο στοχος μου ειναι να βγαλω false. θα το κανω ταιζοντας το h_not
+      show False from h_not (
+        -- το h_not θελει ενα (p ∨ ¬p) για να δουλεψει. αποφασιζω να χτισω το δεξι του μερος, δηλαδη το ¬p
+        Or.inr (
+          -- το ¬p σημαινει p → False. αρα κανω παλι fun, υποθετω το p και το βαφτιζω hp
+          fun hp : p =>
+            -- ειμαι μεσα στο ¬p και πρεπει να βγαλω παλι false. καλω ξανα το h_not!
+            show False from h_not (
+              -- αυτη τη φορα του δινω το (p ∨ ¬p) εχοντας χτισει το αριστερο μερος, αφου εχω στα χερια μου το hp
+              Or.inl hp
+            )
+        )
+      )
+  )
+
+
+/-
+  Αλλοι τροποι αποδειξης:
+-/
+variable (p : Prop)
+example (h : ¬¬p) : p :=
+  byCases
+    (fun h1 : p => h1)
+    (fun h1 : ¬p => absurd h1 h)
+
+example (h : ¬¬p) : p :=
+  byContradiction
+    (fun h1 : ¬p =>
+     show False from h h1)
+
+
+variable (p q : Prop)
+example (h : ¬(p ∧ q)) : ¬p ∨ ¬q :=
+  Or.elim (em p)
+    (fun hp : p => -- εχω το p, θδο ¬p ∨ ¬q
+      Or.inr  -- και αρα θδο ¬q
+        (show ¬q from -- ¬q = q → False
+          fun hq : q => -- αρα υποθετω q και ψαχνω ατοπο
+          h ⟨hp, hq⟩)) -- θελω p ∧ q για το ατοπο
+    (fun hp : ¬p =>
+      Or.inl hp) -- εχω ¬p και χτιζω τον στοχο ¬p ∨ ¬q
+
+end Kef35
+
+
+---------------- 3.6. EXAMPLES OF PROPOSITIONAL VALIDITIES --------------------
+
+namespace Kef36
+
+variable (p q r : Prop)
+#check (p ∧ q) ∧ r ↔ p ∧ (q ∧ r)
+#check ¬(p ∧ ¬p)
+
+/-
+  Χρησιμοποιω sorry ή _ σαν αποδειξη και τα γεμιζω μετα
+  χρησιμο σε μεγαλες αποδειξης
+-/
+
+open Classical
+
+-- distributivity
+example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) :=
+  Iff.intro
+    (fun h : p ∧ (q ∨ r) =>
+      have hp : p := h.left
+      Or.elim (h.right)
+        (fun hq : q =>
+          show (p ∧ q) ∨ (p ∧ r) from Or.inl ⟨hp, hq⟩)
+        (fun hr : r =>
+          show (p ∧ q) ∨ (p ∧ r) from Or.inr ⟨hp, hr⟩)
+      )
+    (fun h : (p ∧ q) ∨ (p ∧ r) =>
+      Or.elim h
+      (fun hpq : p ∧ q =>
+        have hp : p := hpq.left
+        have hq : q := hpq.right
+        show p ∧ (q ∨ r) from ⟨hp, Or.inl hq⟩)
+      (fun hpr : p ∧ r =>
+        have hp : p := hpr.left
+        have hr : r := hpr.right
+        show p ∧ (q ∨ r) from ⟨hp, Or.inr hr⟩)
+    )
+
+-- με κλασικη λογικη:
+example (p q : Prop) : ¬(p ∧ ¬q) → (p → q) :=
+  fun h : ¬(p ∧ ¬q) =>
+  fun hp : p =>
+  show q from
+    Or.elim (em q)
+      (fun hq : q => hq)
+      (fun hnq : ¬q => absurd (And.intro hp hnq) h)
+
+end Kef36
+
+
+-------------------------- 3.7. EXERCISES ------------------------------
+
+
+namespace Kef37
+
+variable (p q r : Prop)
+
+-- αντιμεταθετικοτητα των ∧ και ∨ :
+example : p ∧ q ↔ q ∧ p :=
+  Iff.intro
+    (fun h : p ∧ q =>
+      have hp : p := h.left
+      have hq : q := h.right
+      show q ∧ p from ⟨hq, hp⟩)
+    (fun h : q ∧ p =>
+      have hq : q := h.left
+      have hp : p := h.right
+      show p ∧ q from ⟨hp, hq⟩)
+
+example : p ∨ q ↔ q ∨ p :=
+  Iff.intro
+    (fun h : p ∨ q =>
+      Or.elim h
+      (fun hp : p =>
+        show q ∨ p from Or.inr hp)
+      (fun hq : q =>
+        show q ∨ p from Or.inl hq))
+    (fun h : q ∨ p =>
+      Or.elim h
+      (fun hq : q =>
+        show p ∨ q from Or.inr hq)
+      (fun hp : p =>
+        show p ∨ q from Or.inl hp))
+
+-- προσεταιριστικοτητα
+example : (p ∧ q) ∧ r ↔ p ∧ (q ∧ r) :=
+  Iff.intro
+    (fun h : (p ∧ q) ∧ r =>
+      have hpq : p ∧ q := h.left
+        have hp : p := hpq.left
+        have hq : q := hpq.right
+      have hr : r := h.right
+      show p ∧ (q ∧ r) from ⟨hp, ⟨hq, hr⟩⟩)
+    (fun h : p ∧ (q ∧ r) =>
+      have hp : p := h.left
+      have hqr : q ∧ r := h.right
+        have hq : q := hqr.left
+        have hr : r :=hqr.right
+      show (p ∧ q) ∧ r from ⟨⟨hp, hq⟩, hr⟩)
+
+example : (p ∨ q) ∨ r ↔ p ∨ (q ∨ r) :=
+  Iff.intro
+    (fun h : (p ∨ q) ∨ r =>
+      Or.elim h
+        (fun hpq : p ∨ q =>
+          Or.elim hpq
+            (fun hp : p =>
+              show p ∨ (q ∨ r) from Or.inl hp)
+            (fun hq : q =>
+              show p ∨ (q ∨ r) from Or.inr (Or.inl hq)))
+        (fun hr : r =>
+          show p ∨ (q ∨ r) from Or.inr (Or.inr hr)))
+    (fun h : p ∨ (q ∨ r) =>
+      Or.elim h
+        (fun hp : p =>
+          show (p ∨ q) ∨ r from Or.inl (Or.inl hp))
+        (fun hqr : q ∨ r =>
+          Or.elim hqr
+            (fun hq : q =>
+              show (p ∨ q) ∨ r from Or.inl (Or.inr hq))
+            (fun hr : r =>
+              show (p ∨ q) ∨ r from Or.inr hr)))
+
+-- επιμεριστικοτητα
+example : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) :=
+  Iff.intro
+    (fun h : p ∧ (q ∨ r) =>
+      have hp : p := h.left
+      have hqr : q ∨ r := h.right
+      Or.elim hqr
+        (fun hq : q =>
+            show (p ∧ q) ∨ (p ∧ r) from Or.inl ⟨hp, hq⟩)
+        (fun hr : r =>
+            show (p ∧ q) ∨ (p ∧ r) from Or.inr ⟨hp, hr⟩))
+    (fun h : (p ∧ q) ∨ (p ∧ r) =>
+      Or.elim h
+        (fun hpq : p ∧ q =>
+          have hp : p := hpq.left
+          have hq : q := hpq.right
+          show p ∧ (q ∨ r) from ⟨hp, Or.inl hq⟩)
+        (fun hpr : p ∧ r =>
+          have hp : p := hpr.left
+          have hr : r := hpr.right
+          show p ∧ (q ∨ r) from ⟨hp, Or.inr hr⟩))
+
+example : p ∨ (q ∧ r) ↔ (p ∨ q) ∧ (p ∨ r) :=
+  Iff.intro
+    (fun h : p ∨ (q ∧ r) =>
+      Or.elim h
+        (fun hp : p =>
+          show (p ∨ q) ∧ (p ∨ r) from ⟨Or.inl hp, Or.inl hp⟩)
+        (fun hqr : q ∧ r =>
+          have hq : q := hqr.left
+          have hr : r := hqr.right
+          show (p ∨ q) ∧ (p ∨ r) from ⟨Or.inr hq, Or.inr hr⟩))
+    (fun h : (p ∨ q) ∧ (p ∨ r) =>
+      have hpq : p ∨ q := h.left
+        Or.elim hpq
+          (fun hp : p =>
+            show p ∨ (q ∧ r) from Or.inl hp)
+          (fun hq : q =>
+            show p ∨ (q ∧ r) from Or.in))
