@@ -686,8 +686,61 @@ example : p ∨ (q ∧ r) ↔ (p ∨ q) ∧ (p ∨ r) :=
           show (p ∨ q) ∧ (p ∨ r) from ⟨Or.inr hq, Or.inr hr⟩))
     (fun h : (p ∨ q) ∧ (p ∨ r) =>
       have hpq : p ∨ q := h.left
-        Or.elim hpq
-          (fun hp : p =>
-            show p ∨ (q ∧ r) from Or.inl hp)
-          (fun hq : q =>
-            show p ∨ (q ∧ r) from Or.in))
+      Or.elim hpq
+        (fun hp : p =>
+          show p ∨ (q ∧ r) from Or.inl hp)
+        (fun hq : q =>
+          have hpr : p ∨ r := h.right
+          Or.elim hpr
+            (fun hp2 : p =>
+              show p ∨ (q ∧ r) from Or.inl hp2)
+            (fun hr : r =>
+              show p ∨ (q ∧ r) from Or.inr ⟨hq, hr⟩)))
+
+-- αλλες ιδιοτητες
+example : (p → (q → r)) ↔ (p ∧ q → r) :=
+  Iff.intro
+    (fun h : p → (q → r) =>
+      fun hpq : p ∧ q =>
+        have hp : p := hpq.left
+        have hq : q := hpq.right
+        show r from h hp hq)
+    (fun h : p ∧ q → r =>
+      fun hp : p =>
+      fun hq : q =>
+      show r from h ⟨hp, hq⟩)
+
+example : ((p ∨ q) → r) ↔ (p → r) ∧ (q → r) :=
+  Iff.intro
+    (fun h : (p ∨ q) → r =>
+      show (p → r) ∧ (q → r) from And.intro (
+        fun hp : p =>
+          show r from h (Or.inl hp)
+      ) (
+        fun hq : q =>
+          show r from h (Or.inr hq)
+      )
+    )
+    (fun h : (p → r) ∧ (q → r) =>
+      have hpr : p → r := h.left
+      have hqr : q → r := h.right
+      fun hpq : p ∨ q =>
+        show r from Or.elim hpq hpr hqr
+    )
+
+example : ¬(p ∨ q) ↔ ¬p ∧ ¬q :=
+  Iff.intro
+    (fun hnpq : p ∨ q → False =>
+      show ¬p ∧ ¬q from And.intro (
+        fun hp : p =>
+          show False from hnpq (Or.inl hp)
+      ) (
+        fun hq : q =>
+          show False from hnpq (Or.inr hq)
+      )
+    )
+    (fun hnpnq : ¬p ∧ ¬q =>
+      have hnp : ¬p := hnpnq.left
+      have hnq : ¬q := hnpnq.right
+      fun hpq : p ∨ q =>
+        show False from False.intro)

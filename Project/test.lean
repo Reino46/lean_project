@@ -1,6 +1,6 @@
 def A : Type := Nat → Nat
 
-#check A 5
+#check A
 
 def f : A :=
   fun x => x + 1
