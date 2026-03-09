@@ -23,4 +23,4 @@
 
 - [x] Setup περιβάλλοντος και Git.
 - [x] Chapter 2: Dependent Type Theory
-- [ ] Chapter 3: Propositions and Proofs.
+- [x] Chapter 3: Propositions and Proofs.
