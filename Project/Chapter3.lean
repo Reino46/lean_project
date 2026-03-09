@@ -743,4 +743,21 @@ example : ¬(p ∨ q) ↔ ¬p ∧ ¬q :=
       have hnp : ¬p := hnpnq.left
       have hnq : ¬q := hnpnq.right
       fun hpq : p ∨ q =>
-        show False from False.intro)
+        show False from Or.elim hpq hnp hnq)
+
+example : ¬p ∨ ¬q → ¬(p ∧ q) :=
+  fun hnpnq : ¬p ∨ ¬q =>
+    fun hpq : p ∧ q =>
+    Or.elim hnpnq
+      (fun hnp : ¬p =>
+        have hp : p := hpq.left
+        show False from hnp hp)
+      (fun hnq : ¬q =>
+        have hq : q := hpq.right
+        show False from hnq hq)
+
+example : ¬(p ∧ ¬p) :=
+  fun hpnp : p ∧ ¬p =>
+    have hp : p := hpnp.left
+    have hnp : ¬p := hpnp.right
+    show False from hnp hp
