@@ -761,3 +761,22 @@ example : ¬(p ∧ ¬p) :=
     have hp : p := hpnp.left
     have hnp : ¬p := hpnp.right
     show False from hnp hp
+
+example : p ∧ ¬q → ¬(p → q) :=
+  fun hpnq : p ∧ ¬q =>
+  have hp : p := hpnq.left
+  have hnq : ¬q := hpnq.right
+  fun hpq : p → q =>
+    show False from hnq (hpq hp)
+
+example : ¬p → (p → q) :=
+  fun hnp : ¬p =>
+    fun hp : p =>
+      show q from absurd hp hnp
+
+example : (¬p ∧ q) → (p → q) :=
+  fun hnpq : ¬p ∧ q =>
+    have hnp : ¬p := hnpq.left
+    have hq : q := hnpq.right
+    fun hp : p =>
+      show q from hq
