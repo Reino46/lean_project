@@ -780,3 +780,65 @@ example : (¬p ∧ q) → (p → q) :=
     have hq : q := hnpq.right
     fun hp : p =>
       show q from hq
+
+example : (¬p ∨ q) → (p → q) :=
+  fun hnpq : ¬p ∨ q =>
+    Or.elim hnpq
+      (fun hnp : ¬p =>
+        fun hp : p =>
+          show q from absurd hp hnp
+      )
+      (fun hq : q =>
+        fun hp : p =>
+          show q from hq)
+
+example : p ∨ False ↔ p :=
+  Iff.intro
+    (fun hpF : p ∨ False =>
+      Or.elim hpF
+        (fun hp : p =>
+          show p from hp)
+        (fun hF : False =>
+          show p from False.elim hF)
+    )
+    (fun hp : p =>
+      show p ∨ False from Or.inl hp)
+
+example : p ∧ False ↔ False :=
+  Iff.intro
+    (fun hpF : p ∧ False =>
+      have hF : False := hpF.right
+      show False from hF)
+    (fun hF : False =>
+      have hp : p := False.elim hF
+      show p ∧ False from ⟨hp, hF⟩)
+
+example : (p → q) → (¬q → ¬p) :=
+  fun hpq : p → q =>
+    fun hnq : ¬q =>
+      fun hp : p =>
+        show False from absurd (hpq hp) hnq
+
+-- CLASSICAL
+
+open Classical
+variable (p q r : Prop)
+
+example : (p → q ∨ r) → ((p → q) ∨ (p → r)) :=
+  fun hpqr : p → q ∨ r =>
+  Or.elim (em p)
+    (fun hp : p =>
+     have hqr : q ∨ r := hpqr hp
+     Or.elim hqr
+      (fun hq : q =>
+        Or.inl
+        (fun hp : p => show q from hq))
+      (fun hr : r =>
+        Or.inr
+        (fun hp : p => show r from hr)))
+    (fun hnp : ¬p =>
+        Or.inl
+          (fun hp : p =>
+            show q from absurd hp hnp))
+
+end Kef37
