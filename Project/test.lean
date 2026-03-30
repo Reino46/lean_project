@@ -22,4 +22,12 @@ def f : Nat → Nat → Nat :=
       x^2 + y
 
 #check f
-#eval f 5
+
+
+example {α : Type} (p : α → Prop) : ∀ (x : α), p x → p x := by
+  intro x
+  intro hp
+  exact hp
+
+example {α : Type} (p : α → Prop) : ∀ (x : α), p x → p x :=
+  fun x hp => hp
