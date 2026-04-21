@@ -24,3 +24,5 @@
 - [x] Setup περιβάλλοντος και Git.
 - [x] Chapter 2: Dependent Type Theory
 - [x] Chapter 3: Propositions and Proofs.
+- [x] Chapter 4: Quantifiers and Equality
+- [ ] Chapter 5: Tactics (in progress)
